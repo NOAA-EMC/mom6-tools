@@ -247,11 +247,11 @@ def polarcomparison(field1, field2, grd, proj='SP', circle=True,
     maskedField1 = regionalMasking(field1, yCoord, xCoord, latRange, lonRange)
     maskedField2 = regionalMasking(field2, yCoord, xCoord, latRange, lonRange)
 
-  s1Min, s1Max, s1Mean, s1Std, s1RMS = myStats(maskedField1, grd.area_t, debug=debug)
-  s2Min, s2Max, s2Mean, s2Std, s2RMS = myStats(maskedField2, grd.area_t, debug=debug)
-  dMin, dMax, dMean, dStd, dRMS = myStats(maskedField1 - maskedField2, grd.area_t, debug=debug)
+  s1Min, s1Max, s1Mean, s1Std, s1RMS = myStats(maskedField1, grd.Ah, debug=debug)
+  s2Min, s2Max, s2Mean, s2Std, s2RMS = myStats(maskedField2, grd.Ah, debug=debug)
+  dMin, dMax, dMean, dStd, dRMS = myStats(maskedField1 - maskedField2, grd.Ah, debug=debug)
 
-  if s1Mean is not None: dRxy = corr(maskedField1 - s1Mean, maskedField2 - s2Mean, grd.area_t)
+  if s1Mean is not None: dRxy = corr(maskedField1 - s1Mean, maskedField2 - s2Mean, grd.Ah)
   else: dRxy = None
 
   s12Min = min(s1Min, s2Min); s12Max = max(s1Max, s2Max)
@@ -464,7 +464,7 @@ def polarplot(field, grd, proj='SP', contour=None, circle=True,
   else:
     maskedField = regionalMasking(field, yCoord, xCoord, latRange, lonRange)
 
-  sMin, sMax, sMean, sStd, sRMS = myStats(maskedField, grd.area_t, debug=debug)
+  sMin, sMax, sMean, sStd, sRMS = myStats(maskedField, grd.Ah, debug=debug)
 
   # Choose colormap
   if nbins is None and (clim is None or len(clim)==2): nbins=35
@@ -1798,7 +1798,7 @@ if __name__ == '__main__':
   D,(y,x),_ = nccf.readVar(file,'depth_ocean')
   y,_,_ = nccf.readVar(file,'geolat')
   x,_,_ = nccf.readVar(file,'geolon')
-  area,_,_ = nccf.readVar(file,'area_t')
+  area,_,_ = nccf.readVar(file,'Ah')
   xyplot(D, x, y, title='Depth', ignore=0, suptitle='Testing', area=area, clim=[0, 5500], nbins=12, debug=True, interactive=True, show=True)#, save='fig_test.png')
   xycompare(D, .9*D, x, y, title1='Depth', ignore=0, suptitle='Testing', area=area, nbins=12)#, save='fig_test2.png')
   annual = 'baseline/19000101.ocean_annual.nc'

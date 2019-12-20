@@ -71,7 +71,7 @@ if __name__ == "__main__":
                                cmdLineArgs.wrapx, cmdLineArgs.wrapy )
   if len(cmdLineArgs.gridspec) > 0:
     #area = netCDF4.Dataset(cmdLineArgs.gridspec).variables['areacello'][:,:]
-    area = netCDF4.Dataset(cmdLineArgs.gridspec).variables['area_t'][:,:]
+    area = netCDF4.Dataset(cmdLineArgs.gridspec).variables['Ah'][:,:]
     w = w/(area*1035.0)
   # Plot if requested
   if cmdLineArgs.plot:

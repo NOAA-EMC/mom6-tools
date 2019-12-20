@@ -536,7 +536,7 @@ def main(stream=False):
 
   # read grid
   grd = MOM6grid(RUNDIR+'/'+dcase.casename+'.mom6.static.nc', xrformat=True)
-  area = grd.area_t.where(grd.wet > 0)
+  area = grd.Ah.where(grd.wet > 0)
 
   # Get masking for different regions
   depth = grd.depth_ocean.values
@@ -606,7 +606,7 @@ def xystats(fname, variables, grd, dcase, basins, args):
     parallel = False
 
   RUNDIR = dcase.get_value('RUNDIR')
-  area = grd.area_t.where(grd.wet > 0)
+  area = grd.Ah.where(grd.wet > 0)
   if args.debug: print('RUNDIR:', RUNDIR)
 
   # initiate NCAR cluster
@@ -674,7 +674,7 @@ def horizontal_mean_diff_rms(grd, dcase, basins, args):
   '''
 
   RUNDIR = dcase.get_value('RUNDIR')
-  area = grd.area_t.where(grd.wet > 0)
+  area = grd.Ah.where(grd.wet > 0)
   if args.debug: print('RUNDIR:', RUNDIR)
 
   # initiate NCAR cluster

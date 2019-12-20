@@ -63,7 +63,7 @@ def main(cmdLineArgs):
   lat  = static.variables['geolat'][:]
   wet  = static.variables['wet'][:]
   global area
-  area = static.variables['area_t'][:]*wet
+  area = static.variables['Ah'][:]*wet
   #--------------------------------------------------------------
   # time in days, convert to seconds
   time = surface.variables[tvar][:]*86400.0000000000000
