@@ -95,7 +95,7 @@ def latlon_plot(args, ncfile, grd, variable):
           data = nc.variables[var][t,:]
           units = nc.variables[var].units
           #TODO: convert days to date
-          xyplot( data , grd.geolon, grd.geolat, area=grd.Ah,
+          xyplot( data , grd.geolon, grd.geolat, area=grd.area_t,
             suptitle=case_name,
             title=r'%s, [%s] - Year: %5.1f'%(var,units,time[t]),
             extend='both',

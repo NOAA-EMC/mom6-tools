@@ -157,13 +157,13 @@ def time_mean_latlon(args, grd, variables=[]):
         units = nc[var].attrs['units']
 
         if args.savefigs:
-          m6plot.xyplot( data , grd.geolon, grd.geolat, area=grd.Ah,
+          m6plot.xyplot( data , grd.geolon, grd.geolat, area=grd.area_t,
             suptitle=args.case_name,
             title=r'%s, [%s] averaged over %s: %i-%i'%(var,units,args.xlabel,ti,tf),
             extend='both',
             save=filename)
         else:
-          m6plot.xyplot( data , grd.geolon, grd.geolat, area=grd.Ah,
+          m6plot.xyplot( data , grd.geolon, grd.geolat, area=grd.area_t,
             suptitle=args.case_name,
             title=r'%s, [%s] averaged over %s: %i-%i'%(var,units,args.xlabel,ti,tf),
             extend='both',
@@ -178,7 +178,7 @@ def time_mean_latlon(args, grd, variables=[]):
           for t in range(0,len(dtime)):
             #print ("==> ' + 'step # {} out of {}  ...\n".format(t+1,tm))
             # get stats
-            sMin, sMax, mean, std, rms = m6plot.myStats(data[t], grd.Ah)
+            sMin, sMax, mean, std, rms = m6plot.myStats(data[t], grd.area_t)
             # update Dataset
             ds[var][0,t] = sMin; ds[var][1,t] = sMax; ds[var][2,t] = mean
             ds[var][3,t] = std; ds[var][4,t] = rms
