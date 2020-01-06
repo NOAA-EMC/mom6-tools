@@ -148,7 +148,7 @@ def time_mean_latlon(args, grd, variables=[]):
   for var in variables:
     dim = len(nc[var].shape)
     if dim == 3:
-      filename = str('PNG/%s.png' % (var))
+      filename = str('time_mean/%s.png' % (var))
       if os.path.isfile(filename):
         print (' \n' + '==> ' + '{} has been saved, moving to the next one ...\n' + ''.format(var))
       else:
