@@ -114,7 +114,7 @@ def plot_area_ave_stats(ds, var, args, aspect=[16,9], resolution=576, debug=Fals
 #jkim  ax[4].set_xlabel('Year')
   ax[4].set_xlabel(args.xlabel)
   if args.savefigs:
-    plt.savefig('PNG/%s_stats.png'%(var))
+    plt.savefig(args.savefigs_path+'/%s_stats.png'%(var))
   else:
     plt.show()
 
@@ -132,10 +132,14 @@ def time_mean_latlon(args, grd, variables=[]):
 
   # TODO: assign a new variable called time_years
   # convert time in years
-  nc['time'] = nc.time#jkim /365.
-
-  ti = args.year_start
-  tf = args.year_end
+  if len(args.filename_times) > 0:
+    nc['time'] = args.filename_times
+    ti = args.filename_times[0]
+    tf = args.filename_times[len(args.filename_times)-1]
+  else:
+    nc['time'] = nc.time#jkim /365.
+    ti = args.year_start
+    tf = args.year_end
 
   # check if data includes years between ti and tf
   #jkim m6toolbox.check_time_interval(ti,tf,nc)
@@ -148,7 +152,7 @@ def time_mean_latlon(args, grd, variables=[]):
   for var in variables:
     dim = len(nc[var].shape)
     if dim == 3:
-      filename = str('time_mean/%s.png' % (var))
+      filename = str(args.savefigs_path+'/%s.png' % (var))
       if os.path.isfile(filename):
         print (' \n' + '==> ' + '{} has been saved, moving to the next one ...\n' + ''.format(var))
       else:
