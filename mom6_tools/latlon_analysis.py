@@ -114,7 +114,9 @@ def plot_area_ave_stats(ds, var, args, aspect=[16,9], resolution=576, debug=Fals
 #jkim  ax[4].set_xlabel('Year')
   ax[4].set_xlabel(args.xlabel)
   if args.savefigs:
-    plt.savefig(args.figs_path+'/%s_stats.png'%(var))
+    filename_=args.figs_path+'/%s_'%(var)
+    filename =filename_+args.file_ext+'_stat.png'
+    plt.savefig(filename)
   else:
     plt.show()
 
@@ -152,7 +154,8 @@ def time_mean_latlon(args, grd, variables=[]):
   for var in variables:
     dim = len(nc[var].shape)
     if dim == 3:
-      filename = str(args.figs_path+'/%s.png' % (var))
+      filename_ = str(args.figs_path+'/%s_' % (var))
+      filename  = filename_+args.file_ext+'_mean.png'
       if os.path.isfile(filename):
         print (' \n' + '==> ' + '{} has been saved, moving to the next one ...\n' + ''.format(var))
       else:
