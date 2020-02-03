@@ -813,7 +813,7 @@ def yzplot(field, y=None, z=None,
   clim=None, colormap=None, extend=None, centerlabels=False,
   nbins=None, landcolor=[.5,.5,.5],
   aspect=[16,9], resolution=576, axis=None,
-  ignore=None, save=None, debug=False, show=False, interactive=False):
+           ignore=None, save=None, debug=False, show=False, interactive=False, plotype='colormesh'):
   """
   Renders section plot of scalar field, field(x,z).
 
@@ -844,23 +844,36 @@ def yzplot(field, y=None, z=None,
   debug       If true, report stuff for debugging. Default False.
   show        If true, causes the figure to appear on screen. Used for testing. Default False.
   interactive If true, adds interactive features such as zoom, close and cursor. Default False.
+  plotype     Plotting type. Default 'colormesh'.
   """
 
   # Create coordinates if not provided
   ylabel, yunits, zlabel, zunits = createYZlabels(y, z, ylabel, yunits, zlabel, zunits)
   if debug: print('y,z label/units=',ylabel,yunits,zlabel,zunits)
-  if len(y)==z.shape[-1]: y = expand(y)
-  elif len(y)==z.shape[-1]+1: y = y
-  else: raise Exception('Length of y coordinate should be equal or 1 longer than horizontal length of z')
-  if ignore is not None: maskedField = numpy.ma.masked_array(field, mask=[field==ignore])
-  else: maskedField = field.copy()
-  yCoord, zCoord, field2 = m6toolbox.section2quadmesh(y, z, maskedField)
-
-  # Diagnose statistics
-  sMin, sMax, sMean, sStd, sRMS = myStats(maskedField, yzWeight(y, z), debug=debug)
-  yLims = numpy.amin(yCoord), numpy.amax(yCoord)
-  zLims = boundaryStats(zCoord)
-
+  if plotype == 'colormesh':
+    if len(y)==z.shape[-1]: y = expand(y)
+    elif len(y)==z.shape[-1]+1: y = y
+    else: raise Exception('Length of y coordinate should be equal or 1 longer than horizontal length of z')
+    if ignore is not None: maskedField = numpy.ma.masked_array(field, mask=[field==ignore])
+    else: maskedField = field.copy()
+    yCoord, zCoord, field2 = m6toolbox.section2quadmesh(y, z, maskedField)
+    # Diagnose statistics
+    sMin, sMax, sMean, sStd, sRMS = myStats(maskedField, yzWeight(y, z), debug=debug)
+    yLims = numpy.amin(yCoord), numpy.amax(yCoord)
+    zLims = boundaryStats(zCoord)
+  if plotype == 'contourf':
+    if ignore is not None: maskedField = numpy.ma.masked_array(field, mask=[field==ignore])
+    else: maskedField = field.copy()
+    yCoord=y; zCoord=z; field2 = maskedField
+    # Diagnose statistics
+    sMin = numpy.ma.min(maskedField); sMax = numpy.ma.max(maskedField)
+    sMean = numpy.ma.mean(maskedField)
+    sStd = math.sqrt( numpy.ma.sum( (maskedField-sMean)**2) )
+    sRMS = math.sqrt( numpy.ma.sum( (maskedField**2) ) )
+    #sMin, sMax, sMean, sStd, sRMS = myStats(maskedField, debug=debug) 
+    yLims = numpy.amin(yCoord), numpy.amax(yCoord)
+    zLims =numpy.amin(zCoord), numpy.amax(zCoord)
+    
   # Choose colormap
   if nbins is None and (clim is None or len(clim)==2): nbins=35
   if colormap is None: colormap = chooseColorMap(sMin, sMax)
@@ -870,7 +883,10 @@ def yzplot(field, y=None, z=None,
     setFigureSize(aspect, resolution, debug=debug)
     #plt.gcf().subplots_adjust(left=.10, right=.99, wspace=0, bottom=.09, top=.9, hspace=0)
     axis = plt.gca()
-  plt.pcolormesh(yCoord, zCoord, field2, cmap=cmap, norm=norm)
+  if plotype == 'colormesh':
+    plt.pcolormesh(yCoord, zCoord, field2, cmap=cmap, norm=norm)
+  else:
+    plt.contourf(yCoord, zCoord, field2, cmap=cmap, norm=norm)
   if interactive: addStatusBar(yCoord, zCoord, field2)
   cb = plt.colorbar(fraction=.08, pad=0.02, extend=extend)
   if centerlabels and len(clim)>2: cb.set_ticks(  0.5*(clim[:-1]+clim[1:]) )
