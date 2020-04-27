@@ -507,6 +507,125 @@ def polarplot(field, grd, proj='SP', contour=None, circle=True,
 
   return
 
+def polarplot_scatter(field, grd, proj='SP', contour=None, circle=True,
+              clim = None, colormap = None, nbins = None, save=None,
+              ignore = None, debug=False, show=False, extend = None,
+              sigma = 2.0, logscale = False, title = '', landcolor=[.5,.5,.5] ):
+  """Renders plot of scalar field(x,y) using polar projections.
+
+  Parameters
+  ----------
+  field : 2D numpy array
+    Scalar 2D array to be plotted
+
+  grd : object with MOM6 grid data
+    This is the output of module MOM6grid.
+
+  contour : float, optional
+    If defined, coutours this value in the figure.
+
+  proj  : str, optional
+    Type of projection: 'SP' = SouthPolarStereo (default) or 'NP' = NorthPolarStereo
+
+  circle : boolean, optional
+    If true, compute a circle in axes coordinates, which we can use as a boundary
+    for the map
+
+  clim  : tuple of (min,max), optional
+     color range OR a list of contour levels. Default None
+
+  colormap : str, optional
+    The name of the colormap to use. Default None (choose using chooseColorMap)
+
+  nbins : integer, optional
+    The number of colors levels (used if clim is missing or only specifies the color range).
+
+  ignore : float, optional
+    A value to use as no-data (NaN). Default None
+
+  save : str, optional
+    Name of file to save figure in. Default None (do not save figure)
+
+  debug : boolean, optional
+    If true, report stuff for debugging. Default False
+
+  show : boolean, optional
+    If true, causes the figure to appear on screen. Used for testing. Default False.
+
+  extend : str, optional
+    Can be one of 'both', 'neither', 'max', 'min'. Default None
+
+  logscale : boolean, optional
+    If true, use logaritmic coloring scheme. Default False
+
+  sigma : float, optional
+    Range for difference plot autocolor levels. Default is to span a 2. sigma range
+
+  title  : str, optional
+    The title to place at the top of the panel. Default ''
+
+  landcolor : RGB tuple, optional
+    An rgb tuple to use for the color of land (no data). Default [.5,.5,.5].
+
+  Returns
+  -------
+  """
+
+  if proj == 'SP':
+    proj = ccrs.SouthPolarStereo()
+    extent = [-180, 180, -90, -50]
+  else: # NP
+    proj = ccrs.NorthPolarStereo()
+    extent = [-180, 180, 50, 90]
+
+  # Establish ranges for sectors
+  #lonRange=(grd.geolon.min(), grd.geolon.max()); latRange=(extent[2], extent[3]);
+  lonRange=(-360, 360.); latRange=(extent[2], extent[3])
+
+  # Diagnose statistics
+
+  sMin = numpy.ma.min(field); sMax = numpy.ma.max(field)
+  # Choose colormap
+  if nbins is None and (clim is None or len(clim)==2): nbins=35
+  if colormap is None: colormap = chooseColorMap(sMin, sMax)
+  cmap, norm, extend = chooseColorLevels(sMin, sMax, colormap, clim=clim, nbins=nbins, extend=extend, logscale=logscale)
+
+  fig = plt.figure(figsize=[10, 8])
+  ax = plt.subplot(1, 1, 1, projection=proj)
+  ax.set_extent(extent, ccrs.PlateCarree())
+  ax.add_feature(cartopy.feature.LAND)
+  ax.gridlines()
+
+  if circle:
+    circle_value = get_circle()
+    ax.set_boundary(circle_value, transform=ax.transAxes)
+
+  x_=[-60, -65, -70, 80, 80, 80]
+  y_=[-170, 10,  20, 160, -165, -170]
+  z_=[0.5, 0.6, 0.7, 0.5, 0.6, 0.7]
+  #cs = ax.pcolormesh(xCoord,yCoord,maskedField,transform=ccrs.PlateCarree(),cmap=cmap, shading='flat', norm=norm)
+  #fig.colorbar(cs)
+  
+#  cs= ax.scatter(y_,x_,c=z_, linewidth=2,  s=4, marker='o',cmap=cmap, alpha=0.5,transform=ccrs.PlateCarree())
+  cs= ax.scatter(grd.lon,grd.lat,c=field, linewidth=1,  s=1.2, marker='o',cmap=cmap, alpha=0.3,transform=ccrs.PlateCarree())
+  fig.colorbar(cs)
+
+  # Add Land
+  ax.add_feature( cartopy.feature.LAND, zorder=1, edgecolor='none', facecolor=landcolor) #fae5c9')
+  oceancolor=[.2,.2,.2]
+  # add Ocean
+  ax.add_feature(cartopy.feature.OCEAN, facecolor=oceancolor)
+  # Add coastline
+  ax.coastlines(color='black')
+  # Add lat lon rings
+  ax.gridlines(alpha='0.1',color='black')
+
+  ax.annotate('max=%.5g\nmin=%.5g'%(sMax,sMin), xy=(0.0,1.01), xycoords='axes fraction', verticalalignment='bottom', fontsize=10)
+  if len(title)>0:  plt.title(title)
+  if save is not None: plt.savefig(save)
+  if show: plt.show(block=False)
+
+  return
 
 def xyplot(field, x=None, y=None, area=None,
   xlabel=None, xunits=None, ylabel=None, yunits=None,
